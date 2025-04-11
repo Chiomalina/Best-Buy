@@ -24,12 +24,16 @@ class Product:
 		self.quantity = quantity
 
 		# If quantity has reached 0, deactivate the product
-		if self.quantity == 0:
+		if self.quantity <= 0:
 			# Deactivates the product
 			self.deactivate()
+		else:
+			# Activate the product
+			self.activate()
 
 	def is_active(self) -> bool:
-		return self.active
+		#return self.active
+		return self.quantity > 0
 		#return True
 
 	def activate(self):
@@ -72,12 +76,15 @@ class Product:
 		# Return total price
 		return total_price
 
+	def __str__(self):
+		return self.show()
+
 def main():
 	bose = Product("Bose QuietComfort Earbuds", price=250, quantity=500)
 	mac = Product("MacBook Air M2", price=1450, quantity=100)
 
-	print(bose.buy(50))
-	print(mac.buy(100))
+	print(bose.buy(10))
+	print(mac.buy(20))
 	print(mac.is_active())
 
 	print(bose.show())
