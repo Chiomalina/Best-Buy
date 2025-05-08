@@ -1,100 +1,114 @@
-import products
+from typing import List, Tuple
+from products import Product
+
 
 class Store:
-	def __init__(self, products_list):
-		"""
-		Initialize the store with a list of Product objects.
-		"""
-		self._products = products_list
+    """
+    Store holds a collection of Product instances and allows operations
+    such as adding, removing, querying inventory, and placing orders.
+    """
+    def __init__(self, products_list: List[Product]) -> None:
+        """
+        Initialize the store with a list of Product objects.
 
+        Args:
+            products_list (List[Product]): Initial inventory of products.
+        """
+        # Make a shallow copy to avoid external mutations
+        self._products: List[Product] = list(products_list)
 
-	def add_product(self, product):
-		"""
-		Add a new product to the store's list of products.
-		"""
-		self._products.append(product)
+    def add_product(self, product: Product) -> None:
+        """
+        Add a new product to the store's inventory.
 
+        Args:
+            product (Product): The product to add.
+        Raises:
+            TypeError: If the argument is not a Product instance.
+        """
+        if not isinstance(product, Product):
+            raise TypeError("add_product expects a Product instance.")
+        self._products.append(product)
 
-	def remove_product(self, product):
-		"""
-		Remove a product from the store's list of products.
-		"""
-		self._products.remove(product)
+    def remove_product(self, product: Product) -> None:
+        """
+        Remove a product from the store's inventory.
 
-	def get_total_quantity(self) -> int:
-		"""
-		Returns how many items are in the store in total.
-		(The sum of quantities across all products.)
-		"""
-		return sum(product.get_quantity() for product in self._products)
+        Args:
+            product (Product): The product to remove.
+        Raises:
+            ValueError: If the product is not in inventory.
+        """
+        try:
+            self._products.remove(product)
+        except ValueError:
+            raise ValueError("Product not found in the store inventory.")
 
-	def get_all_products(self) -> list:
-		"""
-		Returns a list of all *active* products in the store.
-		(Active means p.is_active() is True.)
-		"""
+    def get_total_quantity(self) -> int:
+        """
+        Return the total quantity of all products in the store.
 
-		#return [p for p in self._products if p.is_active()]
-		active_products = []
-		for product in self._products:
-			if product.is_active():
-				active_products.append(product)
-		return active_products
+        Returns:
+            int: Sum of quantities of all inventory items.
+        """
+        return sum(prod.get_quantity() for prod in self._products)
 
-	def order(self, shopping_list) -> float:
-		"""
-		Takes a list of tuples (Product, quantity).
-		Buys the requested number of each product and returns
-		the total price of the order.
-		"""
-		total_price = 0
-		for product, quantity in shopping_list:
-			# Buy the specific quantity from each product
-			cost = product.buy(quantity)
-			total_price += cost
-		return total_price
+    def get_all_products(self) -> List[Product]:
+        """
+        Retrieve a list of all active products in the store.
+        Active means the product's is_active() returns True.
 
-	def __str__(self) -> str:
-		"""
-		Returns a human-readable string representation of the store and its products.
-		"""
-		# Display basic store info: total products, total quantity, and then list each product on a new line.
-		store_summary = str(
-			f"Store with {len(self._products)} products. "
-			f"Total quantity in store: {self.get_total_quantity()}.\n"
-			"Active Products:\n"
-		)
+        Returns:
+            List[Product]: Active products.
+        """
+        return [prod for prod in self._products if prod.is_active()]
 
-		# List the active products.
-		active_products = self.get_all_products()
-		for product in active_products:
-			#print(active_products)
-			store_summary += f" {str(product)}\n"
-		return store_summary
+    def order(self, shopping_list: List[Tuple[Product, int]]) -> float:
+        """
+        Place an order for multiple products.
 
-def main(products_module=None):
+        Args:
+            shopping_list (List[Tuple[Product, int]]): List of (Product, quantity) tuples.
+        Returns:
+            float: Total cost of the order.
+        Raises:
+            Exception: Propagates exceptions from Product.buy().
+        """
+        total_price: float = 0.0
+        for item in shopping_list:
+            if (not isinstance(item, tuple) or len(item) != 2
+                    or not isinstance(item[0], Product)
+                    or not isinstance(item[1], int)):
+                raise TypeError("Each order item must be a (Product, int) tuple.")
+            product, qty = item
+            # Product.buy will handle stock and activity checks
+            cost = product.buy(qty)
+            total_price += cost
+        return total_price
 
-	product_list = [
-		products.Product("MacBook Air M2", price=1450, quantity=100),
-        products.Product("Bose QuietComfort Earbuds", price=250, quantity=500),
-        products.Product("Google Pixel 7", price=500, quantity=250),
-    ]
+    def __str__(self) -> str:
+        """
+        Return a human-readable summary of the store.
 
-	best_buy = Store(product_list)
-	print(best_buy)
-	# active_products = best_buy.get_all_products()
-	# total_quantity = best_buy.get_total_quantity()
-	# print(active_products)
-	# print(total_quantity)
-
-	# Print total quantity
-	#print("Total quantity in store:", best_buy.get_total_quantity())
-	# print("Total quantity in store:", total_quantity)
-	#
-	# print(best_buy.order([
-	# 	(active_products[0], 1), (active_products[1], 2)
-	# ]))
+        Includes total products, total quantity, and list of active items.
+        """
+        lines: List[str] = []
+        lines.append(f"Store has {len(self._products)} total products.")
+        lines.append(f"Total quantity in inventory: {self.get_total_quantity()}")
+        lines.append("Active Products:")
+        for prod in self.get_all_products():
+            lines.append(f" - {prod}")
+        return "\n".join(lines)
 
 
 if __name__ == "__main__":
-	main()
+    # Example usage and basic smoke test
+    product_list = [
+        Product("MacBook Air M2", price=1450, quantity=100),
+        Product("Bose QuietComfort Earbuds", price=250, quantity=500),
+        Product("Google Pixel 7", price=500, quantity=250),
+    ]
+    best_buy = Store(product_list)
+    active_products = best_buy.get_all_products()
+    print(best_buy.get_total_quantity())            # Expect 850
+    print(best_buy.order([(active_products[0], 1), (active_products[1], 2)]))  # Expect 1450 + 500 = 1950
