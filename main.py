@@ -8,7 +8,6 @@ from store import Store
 def start(store_instance: Store) -> None:
     """
     Launches the interactive console menu for the store.
-
     Args:
         store_instance (Store): The Store object to interact with.
     """
@@ -39,22 +38,22 @@ def start(store_instance: Store) -> None:
             else:
                 print("\nActive Products:")
                 for prod in products:
-                    print(f"- {prod._name} | Price: {prod._price} | Quantity: {prod.get_quantity()}")
+                    print(f"- {prod._name} | Price: {prod._price} | "
+                          f"Quantity: {prod.get_quantity()}")
 
         elif choice == 2:
-            # Show total quantity
             total = store_instance.get_total_quantity()
             print(f"Total items in store: {total}")
 
         elif choice == 3:
-            # Make an order
             active_products = store_instance.get_all_products()
             if not active_products:
                 print("No active products available for ordering.")
             else:
                 print("\nAvailable for Order:")
                 for idx, prod in enumerate(active_products, start=1):
-                    print(f"{idx}. {prod._name} (Price: {prod._price}, Quantity: {prod.get_quantity()})")
+                    print(f"{idx}. {prod._name} (Price: {prod._price}, "
+                          f"Quantity: {prod.get_quantity()})")
 
                 shopping_list: List[Tuple[Product, int]] = []
 
@@ -80,7 +79,8 @@ def start(store_instance: Store) -> None:
                         print("Quantity must be greater than zero.")
                         continue
                     if qty > chosen.get_quantity():
-                        print(f"Only {chosen.get_quantity()} units available. Please enter a smaller amount.")
+                        print(f"Only {chosen.get_quantity()} units available. "
+                              f"Please enter a smaller amount.")
                         continue
 
                     # Add to shopping list

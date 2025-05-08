@@ -30,6 +30,7 @@ class Store:
             raise TypeError("add_product expects a Product instance.")
         self._products.append(product)
 
+
     def remove_product(self, product: Product) -> None:
         """
         Remove a product from the store's inventory.
@@ -111,4 +112,4 @@ if __name__ == "__main__":
     best_buy = Store(product_list)
     active_products = best_buy.get_all_products()
     print(best_buy.get_total_quantity())            # Expect 850
-    print(best_buy.order([(active_products[0], 1), (active_products[1], 2)]))  # Expect 1450 + 500 = 1950
+    print(best_buy.order([(active_products[0], 1), (active_products[1], 2)]))
